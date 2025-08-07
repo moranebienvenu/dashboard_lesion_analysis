@@ -241,26 +241,30 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         colors3 = ['#42BDB5' if val > 1 else '#F5F2B3' for val in radii3]
     
     # Création des subplots
-    fig = sp.make_subplots(
-        rows=2, cols=2,
-        specs=[[{'type': 'polar'}, {'type': 'polar'}],
-             [{'type': 'polar'}, None]],
-        column_widths=[0.5, 0.5],
-        subplot_titles=(
-            f'Receptor/transporter lesion \n',
-            f'Pre/post synaptic ratios (log scale)\n',
-            f'Receptor/transporter disconnection\n'
-        )
-    )
+    # fig = sp.make_subplots(
+    #     rows=3, cols=1,
+    #     # specs=[[{'type': 'polar'}, {'type': 'polar'}],
+    #     #      [{'type': 'polar'}, None]],
+    #     # column_widths=[0.5, 0.5],
+    #     specs=[[{'type': 'polar'}],
+    #        [{'type': 'polar'}],
+    #        [{'type': 'polar'}]],
+    #     vertical_spacing=0.15 ,
+    #     subplot_titles=(
+    #         f'Receptor/transporter lesion \n',
+    #         f'Pre/post synaptic ratios (log scale)\n',
+    #         f'Receptor/transporter disconnection\n'
+    #     )
+    # )
    
     # Configuration commune
     config = {
-        'title_x': 0.30,  # Centre les titres ajustable
+        'title_x': 0.2,  # Centre les titres ajustable
         'title_font_size': 14,
         'polar': {
             'angularaxis': {
                 'direction': 'clockwise',
-                'rotation': 90  
+                'rotation': 90,
             },
             'bargap': 0.1  
         }
@@ -270,7 +274,7 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     fig1 = go.Figure()
     fig2 = go.Figure()
     fig3 = go.Figure()
-    
+
     # Graphique 1: Lésions
     fig1.add_trace(go.Barpolar(
         r=loc_inj_perc,
@@ -284,8 +288,10 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     fig1.update_layout(
         title_text=f'<b>Receptor/transporter lesion', #: {title_suffix}</b>',
         polar_radialaxis_ticksuffix='%',
-        height=500,
+        height=600,
         showlegend=True,
+        margin=dict(l=50, r=0, t=30, b=10),
+        font=dict(size=12),
         **config
     )
 
@@ -302,8 +308,10 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     fig2.update_layout(
         title_text=f'<b>Receptor/transporter disconnection', #: {title_suffix}</b>',
         polar_radialaxis_ticksuffix='%',
-        height=500,
+        height=600,
         showlegend=True,
+        margin=dict(l=50, r=0, t=30, b=10),
+        font=dict(size=12),
         **config
     )
  
@@ -322,8 +330,11 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         polar_radialaxis_range=[-1, 1],
         height=500,  
         showlegend=True,
+        #margin=dict(l=30, r=10, t=10, b=10),
+        font=dict(size=12),
         **config
     )
+
 
     return fig1, fig2, fig3, colors1, colors3
 
@@ -339,7 +350,7 @@ def get_subjects_and_title(df, analysis_type, existing_subjects=None, is_overlay
         context: Chaîne supplémentaire pour rendre les clés uniques
         
     Returns:
-        Tuple (liste des sujets, titre)
+        Tuple (liste des sujets, titre, sex, session)
     """
     if existing_subjects is None:
         existing_subjects = []
@@ -441,21 +452,6 @@ def get_subjects_and_title(df, analysis_type, existing_subjects=None, is_overlay
         title += f", {', '.join(selected_genders)}"
         
         return subjects, title, None, None
-    
-# def plot_correlation_heatmap(corr_matrix, pval_matrix, alpha=0.05):
-#     mask_sig = pval_matrix < alpha
-#     # On met à NaN les corrélations non significatives pour qu’elles soient masquées dans plotly
-#     corr_masked = corr_matrix.where(mask_sig)
-    
-#     fig = px.imshow(
-#         corr_masked,
-#         color_continuous_scale='RdBu_r',
-#         zmin=-1, zmax=1,
-#         text_auto=".2f",
-#         title="Correlation Heatmap (only significant values shown)"
-#     )
-#     fig.update_traces(textfont_size=10)
-#     return fig    
 
 def detect_group(subject_id):
     if "_sub-NA" in subject_id or "-NA" in subject_id:
@@ -487,111 +483,6 @@ def cohens_d(x, y):
     pooled_std = np.sqrt(((nx-1)*np.std(x, ddof=1)**2 + (ny-1)*np.std(y, ddof=1)**2) / dof)
     return (np.mean(x) - np.mean(y)) / pooled_std
 
-# def plot_heatmap(data, title, figsize=(10, 8), filename="heatmap.png", cmap="RdBu_r", center=0):
-#     plt.figure(figsize=figsize)
-#     sns.heatmap(data, annot=True, cmap=cmap, center=center, fmt=".2f", linewidths=.5, square=True, cbar_kws={"shrink": .8})
-#     plt.title(title, fontsize=14)
-#     plt.xticks(rotation=45, ha="right")
-#     plt.tight_layout()
-#     plt.savefig(filename, dpi=300)
-#     plt.close()
-
-# def plot_significant_heatmap(corr_matrix, pval_matrix, title, filename, alpha=0.05, figsize=(10, 8), cmap="RdBu_r", center=0):
-#     # Masque des valeurs non significatives 
-#     mask = pval_matrix >= alpha
-#     plt.figure(figsize=figsize)
-#     sns.heatmap(
-#         corr_matrix, 
-#         mask=mask, 
-#         annot=True, 
-#         cmap=cmap, 
-#         center=center,
-#         fmt=".2f", 
-#         linewidths=.5, 
-#         square=True,
-#         cbar_kws={"shrink": .8}, 
-#         annot_kws={"size": 10}
-#     )
-#     plt.title(title, fontsize=14)
-#     plt.xticks(rotation=45, ha="right")
-#     plt.tight_layout()
-#     plt.savefig(filename, dpi=300)
-#     plt.close()
-
-# def plot_3_heatmaps_significant(corr_all, pval_all,
-#                                  corr_male, pval_male,
-#                                  corr_female, pval_female,
-#                                  alpha=0.05,
-#                                  figsize=(10, 8),
-#                                  cmap="RdBu_r",
-#                                  center=0,
-#                                  vmin=-1, vmax=1,
-#                                  titles=["All", "Male", "Female"],
-#                                  save_path=None,
-#                                  font_scale=1.2,
-#                                  share_colorbar=True,
-#                                  wspace=0,  # test de Nouveau paramètre pour l'espace entre matrice
-#                                  hspace=0):
-#     #création des labels court pour loc/tract
-#     y_labels_dict = {}
-#     for sys_name, vars_list in {**neurotransmitter_systems, **neurotransmitter_systems_datad}.items():
-#         for var in vars_list:
-#             y_labels_dict[var] = sys_name
-    
-#     # Labels pour outcomes (axe X) 
-#     x_labels = corr_all.columns.tolist()
-  
-#     sns.set_context("paper", font_scale=font_scale)
-#     fig, axes = plt.subplots(1, 3, figsize=figsize)
-
-#     corr_matrices = [corr_all, corr_male,corr_female]
-#     pval_matrices = [pval_all, pval_male,pval_female]
-
-#     # Define a single colorbar if shared
-#     cbar_ax = None
-#     if share_colorbar:
-#         from mpl_toolkits.axes_grid1 import make_axes_locatable
-#         divider = make_axes_locatable(axes[-1])
-#         cbar_ax = divider.append_axes("right", size="3%", pad=0.05)
-
-#     for i, (ax, corr, pval, title) in enumerate(zip(axes, corr_matrices, pval_matrices, titles)):
-#         mask = pval >= alpha
-#         sns.heatmap(
-#             corr,
-#             mask=mask,
-#             ax=ax,
-#             annot=True,
-#             cmap=cmap,
-#             center=center,
-#             vmin=vmin,
-#             vmax=vmax,
-#             fmt=".2f",
-#             linewidths=0.5,
-#             square=True,
-#             cbar=(not share_colorbar if i < 2 else True),
-#             cbar_ax=cbar_ax if (i == 2 and share_colorbar) else None,
-#             annot_kws={"size": 8}
-#         )
-#         ax.set_title(title, fontsize=13)
-#         # Étiquettes X (outcomes)
-#         ax.set_xticklabels(x_labels, rotation=45, ha="right")
-#         # Étiquettes Y (pre_post_vars) seulement pour le premier graphique
-#         if i == 0:
-#             ax.set_yticklabels([y_labels_dict.get(col, col) for col in corr.index], 
-#                               rotation=0, ha="right")
-#         else:
-#             ax.set_yticklabels([])
-
-#         #legendes quand pre/post vs pre/post
-#         # ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
-#         # if i == 0:
-#         #     ax.set_yticklabels(ax.get_yticklabels(), rotation=0, ha="right")
-#         # else:
-#         #     ax.set_yticklabels([])
-#     plt.subplots_adjust(wspace=wspace, hspace=hspace)
-#     if save_path:
-#         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-#     plt.show()
 def extract_pseudo_r2_cs_from_summary(model):
     summary_text = model.summary().as_text()
     match = re.search(r"Pseudo R-squ\. \(CS\):\s+([\d.]+)", summary_text)
@@ -981,6 +872,12 @@ def get_correlation_matrix(df, include_sex_bin=True):
 def extract_subject_id(subject_name):
                 match = re.match(r"(sub-[A-Za-z0-9]+)_ses-V[0-9]+", subject_name)
                 return match.group(1) if match else None
+
+def clean_predictor_name(name):
+                    # Enlève Q(' et ') si présent
+                    if isinstance(name, str) and name.startswith("Q('") and name.endswith("')"):
+                        return name[3:-2]
+                    return name
 # ------------------------ Streamlit app ---------------------------------------------------------------
 
 st.set_page_config(layout="wide")
@@ -1063,7 +960,7 @@ if uploaded_zip is not None:
     else:
         st.warning("❌ No data could be combined. Please check the filenames or their contents.")
 
-#2. Interface principale : visualisation des graphiques de neuroTmap
+#Interface principale : visualisation des graphiques de neuroTmap
 
 if uploaded_zip is not None and not df_combined.empty:
     # Initialisation du session state
@@ -1183,7 +1080,6 @@ if uploaded_zip is not None and not df_combined.empty:
             if st.button("Apply Overlay"):
                 # Met à jour la sélection courante avec la sélection active dans le widget
                 current_overlay = st.session_state.get("overlay_subjects", [])
-                #new_subjects = [s for s in st.session_state.current_overlay_selection if s not in current_overlay]
                 new_subjects = [s for s in overlay_subjects if s not in current_overlay]
                 if new_subjects:
                     for subj in new_subjects:
@@ -1249,7 +1145,7 @@ if uploaded_zip is not None and not df_combined.empty:
 
     # ------------------------Analyses statistiques ------------------------
 
-    #ne fonctionne pas encore, juste affichage possible -- logique à implémenter
+   
     st.header("📈 Statistical Analysis")
 
     analysis_method = st.selectbox(
@@ -1261,7 +1157,7 @@ if uploaded_zip is not None and not df_combined.empty:
         dist = st.selectbox("Select distribution:", ["Gaussian", "Gamma", "Poisson", "Tweedie"])
         if dist == "Tweedie":
             var_power = st.number_input("Variance power", min_value=0.0, max_value=3.0, value=1.5, step=0.1)
-        #link = st.selectbox("Select link function:", ["log", "identity", "inverse", "sqrt"])
+  
         interaction = st.checkbox("Include interaction", value=False)
         fam_to_links = {
             "Gaussian": ["identity", "log", "inverse"],
@@ -1301,6 +1197,7 @@ if uploaded_zip is not None and not df_combined.empty:
         
     if analysis_type != "Personalized subject list":
 
+        #bug avec "sex_bin" quand include interaction
         if analysis_method=="GLM":
             subjects, title, sex_filter, session = get_subjects_and_title(
                 df=df_combined,
@@ -1470,6 +1367,27 @@ if uploaded_zip is not None and not df_combined.empty:
 
    
     if analysis_method == "GLM":
+        # Initialisation du session state
+        if 'glm_stat' not in st.session_state:
+            st.session_state.glm_stat = {
+                'ran': False,
+                'results': None,
+                'variables': {
+                    'outcomes': [],
+                    'covariates': [],
+                    'predictors': []
+                },
+                'plot_config': {
+                    'selected_var': None,
+                    'show_points': True,
+                    'color_by': "None",
+                    'figure': None,
+                    'last_run_variable': None
+                },
+                'analysis_done': False,
+                'data_ready': False
+            }
+
         # Filtrer le dataframe avec la liste des sujets sélectionnés
         df_filtered = df_combined[df_combined['subject'].isin(subjects)]
         # Conversion du sexe en binaire 
@@ -1602,8 +1520,22 @@ if uploaded_zip is not None and not df_combined.empty:
                 st.warning(f"⚠️ La variable {outcome} contient des valeurs non entières - inapproprié pour Poisson")
         st.markdown("---")
         run_glm = st.button("🚀 Run GLM on selected outcomes")
+        if run_glm:
+            st.session_state.glm_stat['run_triggered'] = True
+            st.session_state.glm_stat.update({
+                    'variables': {
+                        'outcomes': selected_outcomes,
+                        'covariates': selected_covariates,
+                        'predictors': selected_predictor
+                    },
+                    'ran': True,
+                    'analysis_done': True,
+                    'data_ready': True
+                })
+            st.session_state.df_filtered_glm = df_filtered.copy()
 
-        if run_glm and selected_outcomes:
+        if st.session_state.glm_stat.get('analysis_done') and st.session_state.glm_stat.get('data_ready'):
+            df_filtered = st.session_state.get('df_filtered_glm', df_combined.copy())
             # Vérification préalable
             if len(subjects) < 3:
                 st.error("⚠️ Vous devez sélectionner au moins 3 sujets pour l'analyse")
@@ -1615,16 +1547,100 @@ if uploaded_zip is not None and not df_combined.empty:
             if not selected_predictor:
                 st.error("⚠️ Veuillez sélectionner au moins une variable indépendante")
                 st.stop()
+            previous_selected_var = None
+            previous_show_points = None
+            previous_color_by = None
 
             # Afficher un aperçu des données
             st.write("Preview of selected data:")
             st.write(df_filtered[selected_outcomes + selected_covariates + selected_predictor].describe())
+        
             
-            #systems_mapping = {f"System-{i+1}": system_predictors for i in range(len(selected_outcomes))}
-            systems_mapping = {"Selected System": selected_predictor}
-            with st.spinner('Exécution des modèles GLM...'):
-            #systems_mapping = {f"System-{i+1}": system_predictors for i in range(len(selected_outcomes))}
+            # Liste des variables numériques
+            glm_config = st.session_state.glm_stat['plot_config']
 
+            # Liste des variables numériques disponibles
+            all_numeric_vars = [
+                col for col in selected_outcomes + selected_covariates + selected_predictor
+                if pd.api.types.is_numeric_dtype(df_filtered[col])
+            ]
+
+            if not all_numeric_vars:
+                st.warning("⚠️ No numeric variable available for display.")
+                st.stop()
+
+            st.subheader("📊 Distribution of selected variables")
+
+            selected_var = st.selectbox(
+                "Choose a variable to visualize:",
+                options=all_numeric_vars,
+                index=all_numeric_vars.index(previous_selected_var) if previous_selected_var in all_numeric_vars else 0,
+                key="glm_selected_var_box"
+            )
+
+            col1, col2 = st.columns(2)
+            with col1:
+                show_points = st.checkbox(
+                    "Show individual points",
+                    value=previous_show_points,
+                    key="glm_show_points"
+                )
+
+            with col2:
+                color_options = ["None"] + [col for col in ['Sexe_bin', 'Group'] if col in df_filtered.columns]               
+                color_by = st.selectbox(
+                    "Color by:",
+                    options=color_options,
+                    index=color_options.index(previous_color_by) if previous_color_by in color_options else 0,
+                    key="glm_color_by"
+                )
+            
+            previous_selected_var = glm_config.get('selected_var')
+            previous_show_points = glm_config.get('show_points')
+            previous_color_by = glm_config.get('color_by')
+
+      
+            if (
+                selected_var != previous_selected_var
+                or show_points != previous_show_points
+                or color_by != previous_color_by
+                or glm_config['figure'] is None
+            ):
+
+                if color_by != "None" and color_by in df_filtered.columns:
+                    fig = px.box(
+                        df_filtered,
+                        y=selected_var,
+                        x=color_by if len(df_filtered[color_by].unique()) > 1 else None,
+                        color=color_by,
+                        title=f"Distribution of {selected_var} by {color_by}",
+                        points="all" if show_points else None,
+                        color_discrete_map={0: '#3498db', 1: '#e74c3c'} if color_by == 'Sexe_bin' else None
+                    )
+                else:
+                    fig = px.box(
+                        df_filtered,
+                        y=selected_var,
+                        title=f"Distribution of  {selected_var}",
+                        points="all" if show_points else None,
+                        color_discrete_sequence=['#3498db']
+                    )
+
+                fig.update_layout(hovermode="x unified")
+                glm_config['figure'] = fig
+                glm_config['last_run_variable'] = selected_var
+                glm_config['selected_var'] = selected_var
+                glm_config['show_points'] = show_points
+                glm_config['color_by'] = color_by
+
+            # Afficher la figure
+            if glm_config['figure']:
+                st.plotly_chart(glm_config['figure'], use_container_width=True)
+                st.session_state.glm_stat['run_triggered'] = False
+            
+   
+            systems_mapping = {"Selected System": selected_predictor}
+            with st.spinner('Running GLM models...'):
                 glm_results = safe_glm_crossgroup(
                     df_predictors=df_filtered,
                     df_outcomes=df_filtered,
@@ -1633,22 +1649,110 @@ if uploaded_zip is not None and not df_combined.empty:
                     covariate=selected_covariates,
                     visit_name=title if 'title' in locals() else "GLM Run",
                     interaction_var=selected_interaction if interaction else None,
-                    family=family,
-                    #overlay_img=None,  # à modifier si on veut des overlays plus tard
-                    #title_suffix="BASE"  
+                    family=family, 
                 )
             if glm_results.empty:
                 st.error("""
-                ❌ Aucun résultat GLM obtenu. Causes possibles :
-                - Données manquantes (NaN) dans les variables sélectionnées
-                - Trop peu d'observations après nettoyage
-                - Problème de convergence du modèle
-                - Famille/link inappropriés pour vos données
+                ❌ No GLM results obtained. Possible causes:
+                   Missing data (NaN) in the selected variables
+                   Too few observations after cleaning
+                   Model convergence issues
+                   Inappropriate family/link function for your data
                 """)
         
             else:
                 st.subheader("📊 GLM Results")
                 st.dataframe(glm_results)
+                # Visualisation interactive des résultats
+                st.subheader("📈 Visualization of results")
+                
+                # Couleurs pour les systèmes
+                base_colors = {
+                    'A4B2': '#76b7b2',
+                    'M1': '#59a14f',
+                    'VAChT': '#edc948',
+                    'D1': '#b07aa1',
+                    'D2': '#ff9da7',
+                    'DAT': '#9c755f',
+                    'Nor': '#79706e',
+                    '5HT1a': '#86bcb6',
+                    '5HT1b': '#d95f02',
+                    '5HT2a': '#e7298a',
+                    '5HT4': '#66a61e',
+                    '5HT6': '#e6ab02',
+                    '5HTT': '#a6761d',
+                }
+           
+                prefixes_pre = ['pre_', 'loc_inj_', 'tract_inj_']
+                prefixes_post = ['post_', 'loc_inj_', 'tract_inj_']
+
+                keys_pre = ['A4B2', 'M1', 'D1', 'D2', 'Nor', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
+                keys_post = ['VAChT', 'DAT', '5HTT']
+                neuro_colors = {}
+
+                for key, color in base_colors.items():
+                    neuro_colors[key] = color
+
+                for key in keys_pre:
+                    for prefix in prefixes_pre:
+                        neuro_colors[prefix + key] = base_colors[key]
+
+                for key in keys_post:
+                    for prefix in prefixes_post:
+                        neuro_colors[prefix + key] = base_colors[key]
+                
+                for outcome in glm_results['Outcome'].unique():
+                    outcome_data = glm_results[glm_results['Outcome'] == outcome].copy()
+                    outcome_data['Clean_Predictor'] = outcome_data['Predictor'].apply(clean_predictor_name)
+                    outcome_data = outcome_data[outcome_data['Clean_Predictor'].isin(neuro_colors.keys())]
+
+                    if outcome_data.empty:
+                        st.write(f"No relevant predictors to display for outcome {outcome}.")
+                        continue
+
+                    fig = go.Figure()
+
+                    for _, row in outcome_data.iterrows():
+                        predictor = row['Clean_Predictor']
+                        color = neuro_colors.get(predictor, '#1f77b4')
+
+                        fig.add_trace(go.Bar(
+                            x=[predictor],
+                            y=[row['Coefficient']],
+                            name=predictor,
+                            marker_color=color,
+                            text=[f"p={row['P-value']:.3f}"],
+                            textposition='auto',
+                            hoverinfo='text',
+                            hovertext=(
+                                f"Predictor: {predictor}<br>"
+                                f"Coefficient: {row['Coefficient']:.3f}<br>"
+                                f"p-value: {row['P-value']:.3f}"
+                            )
+                        ))
+
+                        if row['Significant']:
+                            fig.add_annotation(
+                                x=predictor,
+                                y=row['Coefficient'],
+                                text="*",
+                                showarrow=False,
+                                font=dict(size=20, color='black'),
+                                yshift=10
+                            )
+
+                    fig.update_layout(
+                        title=f"GLM Results for {outcome}",
+                        xaxis_title="Predictors",
+                        yaxis_title="Coefficient",
+                        barmode='group',
+                        showlegend=False,
+                        hovermode='closest',
+                        template='plotly_white'
+                    )
+
+                    st.plotly_chart(fig, use_container_width=True)
+
                 # ✅ Bouton de téléchargement Excel
                 #st.subheader("📥 GLM Results Export")
                 output = BytesIO()
@@ -1662,7 +1766,6 @@ if uploaded_zip is not None and not df_combined.empty:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-    #produire des bar plot 
 
    
     #quand je choisis deux groupes de sujets avec les memes base - pas mme version pour test independant ca marche quand emme ///rajouter une condition pour base-subject
@@ -1671,17 +1774,25 @@ if uploaded_zip is not None and not df_combined.empty:
         st.subheader("T-Test Configuration")
         if 'ttest' not in st.session_state:
             st.session_state.ttest = {
-                'active_tab_ttest': "Statistic Results",
+                'ran': False,
                 'results_df': None,
-                #'group1_df': None,
-                #'group2_df': None,
                 'cleaned_data': None,
+                'df1_clean': None,
+                'df2_clean': None,
                 'variables': None,
                 'paired': False,
-                'analysis_done' : False,
-                'data_ready_ttest': False
+                'analysis_done': False,
+                'data_ready_ttest': False,
+                'active_ttest_tab': "Statistic Results",
+                'plot_config': {
+                    'plot_type': "Violin plot",
+                    'selected_var': None,
+                    'figure': None,
+                    'last_run_variable': None,
+                    'last_run_plot_type': None
+                    }
             }
-
+           
         # Ajouter le choix du type de test
         paired_test = st.checkbox(
             "Paired data (same subjects in both groups)", 
@@ -1772,7 +1883,7 @@ if uploaded_zip is not None and not df_combined.empty:
                 st.error("Paired test requires same number of subjects in both groups")
                 st.stop()
                 
-            # Vérifier que ce sont bien les mêmes sujets (versions différentes)
+            # Vérifier que ce sont bien les mêmes sujets (versions différentes possibles)
             base_ids_group1 = {subj.split('-V')[0] for subj in group1_subjects}
             base_ids_group2 = {subj.split('-V')[0] for subj in group2_subjects}
             
@@ -1819,7 +1930,6 @@ if uploaded_zip is not None and not df_combined.empty:
 
                     if all_removed_subjects:
                         st.markdown(f"<span style='color:grey'>Removed due to missing values: {', '.join(all_removed_subjects)}</span>", unsafe_allow_html=True)
-                        #st.markdown(f"**{var}** – Number of valid subjects: Group 1 = {len(df1_clean)}, Group 2 = {len(df2_clean)}")
 
 
                     test_results = perform_group_comparison(
@@ -1856,22 +1966,33 @@ if uploaded_zip is not None and not df_combined.empty:
             st.session_state.ttest.update({
                 'results_df': results_df,
                 'cleaned_data': cleaned_data,
+                'df1_clean': df1_clean,
+                'df2_clean': df2_clean,
                 'variables': variables_to_compare,
                 'paired': paired_test, 
                 'analysis_done' : True,
                 'data_ready_ttest': True,
+                'ran': True,
             })
 
 
-            # ---------- AFFICHAGE ----------
+    
+        # ---------  Affichage ------------
+        if st.session_state.ttest.get('ran', False) and st.session_state.ttest['data_ready_ttest']:
+            config = st.session_state.ttest['plot_config']
+            tab_options = ["Statistic Results", "Visualization"]
+            selected_tab = st.radio(
+                "Navigation",
+                tab_options,
+                horizontal=True,
+                index=tab_options.index(st.session_state.ttest['active_ttest_tab']),
+                key='tab_selector_ttest',
+                label_visibility="hidden"
+            )
+            st.session_state.ttest['active_ttest_tab'] = selected_tab
 
-            if 'ttest' in st.session_state and 'results_df' in st.session_state.ttest:
-
-                            st.session_state.ttest['analysis_done'] = True  # Marque que l'analyse a été faite
-
-                            tab1, tab2 = st.tabs(["Statistic Results", "Visualization"])
-            #---------- Onglet 1 : Résultats statistiques avec fichier excel/csv à télecharger ----------
-            with tab1:
+            #---------- Onglet 1 : Resultats T-Test ----------
+            if selected_tab == "Statistic Results":
                 st.subheader("T-Test Results")
 
                 format_dict = {
@@ -1895,7 +2016,6 @@ if uploaded_zip is not None and not df_combined.empty:
                     st.warning("Colonnes ou index non uniques : affichage sans style.")
                     st.dataframe(st.session_state.ttest['results_df'])
 
-                # Téléchargement des résultats au format Excel
                 output = io.BytesIO()
                 with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                     st.session_state.ttest['results_df'].to_excel(writer, index=False, sheet_name='T-Test Results')
@@ -1904,102 +2024,84 @@ if uploaded_zip is not None and not df_combined.empty:
                     label="Download results as Excel",
                     data=output.getvalue(),
                     file_name="statistical_results.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    mime="applicat"
+                    "ion/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            #---------- Onglet 2 : Visualisation ----------
+            elif selected_tab == "Visualization":
+        
+                st.subheader("Group Comparison Plots")
+
+                plot_type = st.radio(
+                    "Choose plot type:",
+                    ["Violin plot", "Box plot"],
+                    index=["Violin plot", "Box plot"].index(config['plot_type']),
+                    key="plot_type_radio"
                 )
 
-            #---------- Onglet 2 : Visualisation ----------
+                selected_var = st.selectbox(
+                    "Select variable to display:",
+                    options=st.session_state.ttest['variables'],
+                    index=st.session_state.ttest['variables'].index(config['selected_var']) if config['selected_var'] in st.session_state.ttest['variables'] else 0,
+                    key="selected_var_box"
+                )
 
-            with tab2:
-                if 'ttest' in st.session_state and st.session_state.ttest.get('analysis_done', False):
+                config['plot_type'] = plot_type
+                config['selected_var'] = selected_var
 
-                    st.subheader("Group Comparison Plots")
+                if (selected_var != config.get('last_run_variable')) or (plot_type != config.get('last_run_plot_type')):
 
-                    # Initialisation sécurisée des paramètres de plot_config
-                    if 'plot_config' not in st.session_state.ttest:
-                        st.session_state.ttest['plot_config'] = {
-                            'plot_type': "Violin plot",
-                            'selected_var': st.session_state.ttest['variables'][0] if st.session_state.ttest['variables'] else None,
-                            'figure': None
-                        }
+                    if selected_var in st.session_state.ttest['cleaned_data']:
+                        df1_clean, df2_clean = st.session_state.ttest['cleaned_data'][selected_var]
 
-                    # Widgets classiques pour choisir plot_type et variable, avec clé pour garder l'état
-                    plot_type = st.radio(
-                        "Choose plot type:",
-                        ["Violin plot", "Box plot"],
-                        index=0 if st.session_state.ttest['plot_config']['plot_type'] == "Violin plot" else 1,
-                        key="plot_type_radio"
-                    )
+                        if not df1_clean.empty and not df2_clean.empty:
+                            df_plot = pd.concat([
+                                df1_clean[[selected_var]].assign(Group="Group 1"),
+                                df2_clean[[selected_var]].assign(Group="Group 2")
+                            ])
 
-                    selected_var = st.selectbox(
-                        "Select variable to display:",
-                        options=st.session_state.ttest['variables'],
-                        index=st.session_state.ttest['variables'].index(st.session_state.ttest['plot_config']['selected_var']) if st.session_state.ttest['plot_config']['selected_var'] in st.session_state.ttest['variables'] else 0,
-                        key="selected_var_box"
-                    )
-
-                    # Si on change plot_type ou selected_var, on reset la figure
-                    if (plot_type != st.session_state.ttest['plot_config']['plot_type'] or
-                        selected_var != st.session_state.ttest['plot_config']['selected_var']):
-                        st.session_state.ttest['plot_config']['plot_type'] = plot_type
-                        st.session_state.ttest['plot_config']['selected_var'] = selected_var
-                        st.session_state.ttest['plot_config']['figure'] = None
-
-                    # Génération ou affichage du plot
-                    if st.session_state.ttest['plot_config']['figure'] is None:
-                        var = st.session_state.ttest['plot_config']['selected_var']
-                        if var in st.session_state.ttest['cleaned_data']:
-                            df1_clean, df2_clean = st.session_state.ttest['cleaned_data'][var]
-
-                            if not df1_clean.empty and not df2_clean.empty:
-                                df_plot = pd.concat([
-                                    df1_clean[[var]].assign(Group="Group 1"),
-                                    df2_clean[[var]].assign(Group="Group 2")
-                                ])
-
-                                if plot_type == "Violin plot":
-                                    fig = go.Figure()
-                                    colors = ['#1f77b4', '#ff7f0e']
-                                    for i, group in enumerate(df_plot["Group"].unique()):
-                                        fig.add_trace(go.Violin(
-                                            y=df_plot[df_plot["Group"] == group][var],
-                                            name=group,
-                                            box_visible=True,
-                                            meanline_visible=True,
-                                            points="all",
-                                            line_color='black',
-                                            fillcolor=colors[i]
-                                        ))
-                                else:
-                                    fig = px.box(
-                                        df_plot,
-                                        x="Group",
-                                        y=var,
+                            if plot_type == "Violin plot":
+                                fig = go.Figure()
+                                colors = ['#1f77b4', '#ff7f0e']
+                                for i, group in enumerate(df_plot["Group"].unique()):
+                                    fig.add_trace(go.Violin(
+                                        y=df_plot[df_plot["Group"] == group][selected_var],
+                                        name=group,
+                                        box_visible=True,
+                                        meanline_visible=True,
                                         points="all",
-                                        color="Group",
-                                        color_discrete_sequence=['#1f77b4', '#ff7f0e']
-                                    )
-
-                                fig.update_layout(
-                                    title=f"{var} - Group Comparison",
-                                    height=500,
-                                    margin=dict(l=20, r=20, t=60, b=20),
-                                    showlegend=True
+                                        line_color='black',
+                                        fillcolor=colors[i]
+                                    ))
+                            else:
+                                fig = px.box(
+                                    df_plot,
+                                    x="Group",
+                                    y=selected_var,
+                                    points="all",
+                                    color="Group",
+                                    color_discrete_sequence=['#1f77b4', '#ff7f0e']
                                 )
 
-                                st.session_state.ttest['plot_config']['figure'] = fig
-                            else:
-                                st.warning("Not enough data to generate plot.")
+                            fig.update_layout(
+                                title=f"{selected_var} - Group Comparison",
+                                height=500,
+                                margin=dict(l=20, r=20, t=60, b=20),
+                                showlegend=True
+                            )
+
+                            config['figure'] = fig
+                            config['last_run_variable'] = selected_var
+                            config['last_run_plot_type'] = plot_type
                         else:
-                            st.warning(f"No cleaned data found for variable: {var}")
-
-                    if st.session_state.ttest['plot_config']['figure']:
-                        st.plotly_chart(st.session_state.ttest['plot_config']['figure'], use_container_width=True)
+                            st.warning("Not enough data to generate plot.")
                     else:
-                        st.info("Select variable and plot type to generate the graph.")
+                        st.warning(f"No cleaned data found for variable: {selected_var}")
 
+                if config['figure']:
+                    st.plotly_chart(config['figure'], use_container_width=True)
 
-
-
+           
 
     elif analysis_method =="Correlation":
         st.subheader("🔗 Correlation Analysis")
@@ -2044,7 +2146,7 @@ if uploaded_zip is not None and not df_combined.empty:
             ] if f"tract_inj_{sys}" in df_filtered.columns],
 
             "Clinical Outcomes": [col for col in df_filtered.columns 
-                        if col not in ['subject', 'Sexe_bin', 'sex']
+                        if col not in ['subject', 'Sexe_bin', 'sex', 'lesion_volume']
                         and not col.startswith(('loc_inj_', 'tract_inj_', 'pre_', 'post_'))]
         } 
 
@@ -2197,17 +2299,27 @@ if uploaded_zip is not None and not df_combined.empty:
                     )
                     st.session_state.corr['show_all'] = show_all
                 with col2:
-                    p_thresh = st.slider(
+                    # p_thresh = st.slider(
+                    #     "p-value threshold",
+                    #     0.001, 0.1,
+                    #     value=st.session_state.corr.get('p_thresh', 0.05),
+                    #     step=0.001,
+                    #     key='corr_p_thresh'
+                    # )
+                    p_values = [round(x, 3) for x in [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009,
+                                  0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]]
+
+                    p_thresh = st.selectbox(
                         "p-value threshold",
-                        0.01, 0.1,
-                        value=st.session_state.corr.get('p_thresh', 0.05),
-                        step=0.01,
+                        options=p_values,
+                        index=p_values.index(st.session_state.corr.get('p_thresh', 0.05)),
                         key='corr_p_thresh'
                     )
                     st.session_state.corr['p_thresh'] = p_thresh
 
                 # Préparer la matrice à afficher : masquer si nécessaire les corrélations non-significatives selon le seuil choisit par l'utilisateur
                 cross_corr_plot = data['cross_corr'].copy()
+
                 if not show_all:
                     mask = data['cross_pvals'] >= p_thresh
                     cross_corr_plot = cross_corr_plot.mask(mask)
@@ -2221,12 +2333,18 @@ if uploaded_zip is not None and not df_combined.empty:
                     aspect="equal",
                     labels=dict(color="Correlation")
                 )
+                fig.update_traces(
+                    hoverongaps=False
+                )
                 fig.update_layout(
                     title=f"Correlations {data['session1']} vs {data['session2']}",
                     margin=dict(l=40, r=40, t=40, b=40),
                     coloraxis_colorbar=dict(title="Correlation"),
-                    xaxis=dict(tickangle=45)
+                    xaxis=dict(tickangle=45, showgrid=False, zeroline=False,tickfont=dict(color='black')),
+                    yaxis=dict(showgrid=False, zeroline=False,tickfont=dict(color='black') ),
+              
                 )
+                
                 st.plotly_chart(fig, use_container_width=True)
                 
                 # Exporter en format PDF (format csv déjà disponible sur la figure interactive pour chaque table séparément)
@@ -2239,12 +2357,10 @@ if uploaded_zip is not None and not df_combined.empty:
                         st.session_state.corr['data']['cross_pvals'].to_excel(writer, sheet_name='Cross_Pvalues')
                     
                     st.download_button(
-                        label="📥 Télécharger les résultats",
+                        label="📥 Download the results",
                         data=output.getvalue(),
                         file_name=f"correlation_{st.session_state.corr['data']['session1']}_vs_{st.session_state.corr['data']['session2']}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                 
 
-
-#produire les graphiqus - barplot pour GLM, ou scatter plot ; heatmap pour corelation ; bar plot ou violin plot pour t-test
