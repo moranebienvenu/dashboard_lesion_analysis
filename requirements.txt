@@ -7,3 +7,4 @@ numpy>=1.24.0
 statsmodels>=0.14.0
 nilearn>=0.11.0
 seaborn>=0.13.0
+openpyxl>=3.0.0
