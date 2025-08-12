@@ -237,9 +237,11 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         colors3 = [overlay_color if val > 1 else overlay_color.replace("0.5", "0.2") for val in radii3]
     else:
 
-        fixed_color = "#b7e4c7"  # vert pastel
-        colors1 = [fixed_color] * len(systems)
-        colors3 = [fixed_color] * len(radii3)
+        fixed_color_strong = "#b7e4c7"   # vert pastel (pour val > 1)
+        fixed_color_light = "#def1e4"    # vert très clair (pour val <= 1)
+
+        colors1 = [fixed_color_strong] * len(systems)
+        colors3 = [fixed_color_strong if val > 1 else fixed_color_light for val in radii3]
         #configuration de base dans NeuroTmap pour un seul sujet
         # colors1 = ["#B7B3D7", "#928CC1", "#6E66AD", "#B7DEDA", "#92CEC8", "#6BBDB5", 
         #         "#EBA8B1", "#FCFCED", "#FBFAE2", "#F8F8D6", "#F8F6CB", "#F6F4BE", "#F5F2B3"]
