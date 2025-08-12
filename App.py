@@ -1084,7 +1084,7 @@ if uploaded_zip is not None and not df_combined.empty:
                                 is_overlay=True
                             )
                         
-                            st.session_state.overlay_plots.append((fig1_ov, fig2_ov, fig3_ov))
+                            st.session_state.overlay_plots= (fig1_ov, fig2_ov, fig3_ov)
                             st.session_state.overlay_subjects.append(subj)
                             st.session_state.overlay_title = overlay_title
                             st.session_state.overlay_ready = True
