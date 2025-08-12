@@ -2413,6 +2413,8 @@ if uploaded_zip is not None and not df_combined.empty:
                 fig.update_layout(
                     shapes=shapes,
                     yaxis=dict(
+                        scaleanchor="x",
+                        scaleratio=1,
                         autorange='reversed',
                         tickvals=list(range(len(y))),
                         ticktext=y,
