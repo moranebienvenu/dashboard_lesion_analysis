@@ -2374,12 +2374,12 @@ if uploaded_zip is not None and not df_combined.empty:
                 x = data['cross_corr'].columns.tolist()
                 y = data['cross_corr'].index.tolist()
 
-
                 # if not show_all:
                 #     mask = data['cross_pvals'] >= p_thresh
                 #     cross_corr_plot = cross_corr_plot.mask(mask)
-                mask = ((data['cross_pvals'] >= p_thresh) & (~show_all)).values
+                mask = ((data['cross_pvals'] >= p_thresh) & (~show_all)).values 
 
+                #superposition de deux matrices pour griser les cases non significatives
                 fig = go.Figure(go.Heatmap(
                     z=corr,
                     x=list(range(len(x))),
@@ -2419,17 +2419,25 @@ if uploaded_zip is not None and not df_combined.empty:
                         autorange='reversed',
                         tickvals=list(range(len(y))),
                         ticktext=y,
+                        ticks="outside",
+                        ticklen=5,
+                        tickwidth=1,
+                        tickcolor='#000',
                     ),
                     xaxis=dict(
                         tickvals=list(range(len(x))),
                         ticktext=x,
-                        tickangle=45
+                        tickangle=45,
+                        ticks="outside",
+                        ticklen=5,
+                        tickwidth=1,
+                        tickcolor='#000',
                     ),
                 )
 
                 st.plotly_chart(fig, use_container_width=True)
     
-                # Plotly heatmap -- si equal fonctionne pas bien, possibilité d'ajusté manuellement la taille des cellules de la heatmap
+                # Plotly heatmap mais avec effacement des valeurs non-significative
                 # fig = px.imshow(
                 #     cross_corr_plot,
                 #     color_continuous_scale='RdBu_r',
