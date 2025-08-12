@@ -1071,6 +1071,8 @@ if uploaded_zip is not None and not df_combined.empty:
                 current_overlay = st.session_state.get("overlay_subjects", [])
                 new_subjects = [s for s in overlay_subjects if s not in current_overlay]
                 if new_subjects:
+                    if "overlay_plots" not in st.session_state:
+                        st.session_state.overlay_plots = []
                     for subj in new_subjects:
                         fig1_ov, fig2_ov, fig3_ov, _, _ = create_interactive_plots(
                             df_combined,
@@ -1079,12 +1081,11 @@ if uploaded_zip is not None and not df_combined.empty:
                             is_group=False,
                             is_overlay=True
                         )
-                        if "overlay_plots" not in st.session_state:
-                            st.session_state.overlay_plots = []
+                    
                         st.session_state.overlay_plots= (fig1_ov, fig2_ov, fig3_ov)
                         st.session_state.overlay_subjects.append(subj)
-                        st.session_state.overlay_title = overlay_title
-                        st.session_state.overlay_ready = True
+                    st.session_state.overlay_title = overlay_title
+                    st.session_state.overlay_ready = True
                     # Afficher le nombre de sujets APRÈS la mise à jour
                     st.write(f"Number of subjects currently applied in overlay: {len(st.session_state.overlay_subjects)}")
                 else:
@@ -1109,9 +1110,12 @@ if uploaded_zip is not None and not df_combined.empty:
             and st.session_state.get("overlay_ready", False)
         ):
             try:
-                fig1_ov, fig2_ov, fig3_ov = st.session_state.overlay_plots
-                for fig, fig_ov in zip([fig1, fig2, fig3], [fig1_ov, fig2_ov, fig3_ov]):
-                    fig.add_traces(fig_ov.data)
+                for overlay_figures in st.session_state.overlay_plots:
+                    for fig, fig_ov in zip([fig1, fig2, fig3], overlay_figures):
+                        fig.add_traces(fig_ov.data)
+                # fig1_ov, fig2_ov, fig3_ov = st.session_state.overlay_plots
+                # for fig, fig_ov in zip([fig1, fig2, fig3], [fig1_ov, fig2_ov, fig3_ov]):
+                #     fig.add_traces(fig_ov.data)
             except (ValueError, TypeError) as e:
                 st.warning(f"Erreur lors du chargement des overlays : {e}")
             finally:
