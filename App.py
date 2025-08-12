@@ -1110,8 +1110,8 @@ if uploaded_zip is not None and not df_combined.empty:
             and st.session_state.get("overlay_ready", False)
         ):
             try:
-                for overlay_figures in st.session_state.overlay_plots:
-                    for fig, fig_ov in zip([fig1, fig2, fig3], overlay_figures):
+                for fig1_ov, fig2_ov, fig3_ov in st.session_state.overlay_plots:
+                    for fig, fig_ov in zip([fig1, fig2, fig3], [fig1_ov, fig2_ov, fig3_ov]):
                         fig.add_traces(fig_ov.data)
                 # fig1_ov, fig2_ov, fig3_ov = st.session_state.overlay_plots
                 # for fig, fig_ov in zip([fig1, fig2, fig3], [fig1_ov, fig2_ov, fig3_ov]):
