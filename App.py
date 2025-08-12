@@ -2412,6 +2412,7 @@ if uploaded_zip is not None and not df_combined.empty:
 
                 fig.update_layout(
                     shapes=shapes,
+                    margin=dict(l=50, r=50, t=80, b=50),
                     yaxis=dict(
                         scaleanchor="x",
                         scaleratio=1,
