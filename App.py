@@ -196,38 +196,32 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     # 1. Préparation des données pour les graphiques 1 et 2
     loc_inj_perc = [data_to_plot[f'loc_inj_perc_{sys}'] for sys in systems]
     tract_inj_perc = [data_to_plot[f'tract_inj_perc_{sys}'] for sys in systems]
-    
-    #2. Préparation des données pour le graphique 3
+
+    # 2. Calcul des ratios pre/post comme NeuroTmap.py
     pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
     post_systems = ['VAChT', 'DAT', '5HTT']
 
-    radii3 = [data_to_plot[f'pre_{sys}'] for sys in pre_systems] or  [data_to_plot[f'post_{sys}'] for sys in post_systems]
-    radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
-
-    # 2. Calcul des ratios pre/post comme NeuroTmap.py
+    def safe_get(data, system, prefix):
+        col = f'{prefix}_{system}'
+        return data[col] if col in data else 0.0
     
-    
-    # def safe_get(data, system, prefix):
-    #     col = f'{prefix}_{system}'
-    #     return data[col] if col in data else 0.0
-    
-    # radii3a, radii3b = [], []
-    # for i, sys in enumerate(pre_systems):
-    #     recep = max(safe_get(data_to_plot, sys, 'loc_inj_perc'), safe_get(data_to_plot, sys, 'tract_inj_perc'))
-    #     trans_sys = 'VAChT' if sys in ['A4B2', 'M1'] else 'DAT' if sys in ['D1', 'D2'] else '5HTT'
-    #     trans = max(safe_get(data_to_plot, trans_sys, 'loc_inj_perc'), safe_get(data_to_plot, trans_sys, 'tract_inj_perc'))
+    radii3a, radii3b = [], []
+    for i, sys in enumerate(pre_systems):
+        recep = max(safe_get(data_to_plot, sys, 'loc_inj_perc'), safe_get(data_to_plot, sys, 'tract_inj_perc'))
+        trans_sys = 'VAChT' if sys in ['A4B2', 'M1'] else 'DAT' if sys in ['D1', 'D2'] else '5HTT'
+        trans = max(safe_get(data_to_plot, trans_sys, 'loc_inj_perc'), safe_get(data_to_plot, trans_sys, 'tract_inj_perc'))
         
-    #     radii3a.append(trans / 0.1 if recep == 0 else trans / recep)
-    #     radii3b.append(recep / 0.1 if trans == 0 else recep / trans)
+        radii3a.append(trans / 0.1 if recep == 0 else trans / recep)
+        radii3b.append(recep / 0.1 if trans == 0 else recep / trans)
     
-    # radii3b_avg = [
-    #     (radii3b[0] + radii3b[1]) / 2,
-    #     (radii3b[2] + radii3b[3]) / 2,
-    #     sum(radii3b[4:9]) / 5
-    # ]
+    radii3b_avg = [
+        (radii3b[0] + radii3b[1]) / 2,
+        (radii3b[2] + radii3b[3]) / 2,
+        sum(radii3b[4:9]) / 5
+    ]
     
-    # radii3 = np.append(radii3a, radii3b_avg)
-    # radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
+    radii3 = np.append(radii3a, radii3b_avg)
+    radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
     
     # Si overlay, définir une couleur unique -- peut être ajouté hachure transparente pour le rendu
     if is_overlay:
