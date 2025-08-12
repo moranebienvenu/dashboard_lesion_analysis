@@ -197,33 +197,41 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     loc_inj_perc = [data_to_plot[f'loc_inj_perc_{sys}'] for sys in systems]
     tract_inj_perc = [data_to_plot[f'tract_inj_perc_{sys}'] for sys in systems]
     
-    # 2. Calcul des ratios pre/post comme NeuroTmap.py
-    pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
-    post_systems = ['VAChT', 'DAT', '5HTT']
-    
-    def safe_get(data, system, prefix):
-        col = f'{prefix}_{system}'
-        return data[col] if col in data else 0.0
-    
-    radii3a, radii3b = [], []
-    for i, sys in enumerate(pre_systems):
-        recep = max(safe_get(data_to_plot, sys, 'loc_inj_perc'), safe_get(data_to_plot, sys, 'tract_inj_perc'))
-        trans_sys = 'VAChT' if sys in ['A4B2', 'M1'] else 'DAT' if sys in ['D1', 'D2'] else '5HTT'
-        trans = max(safe_get(data_to_plot, trans_sys, 'loc_inj_perc'), safe_get(data_to_plot, trans_sys, 'tract_inj_perc'))
-        
-        radii3a.append(trans / 0.1 if recep == 0 else trans / recep)
-        radii3b.append(recep / 0.1 if trans == 0 else recep / trans)
-    
-    radii3b_avg = [
-        (radii3b[0] + radii3b[1]) / 2,
-        (radii3b[2] + radii3b[3]) / 2,
-        sum(radii3b[4:9]) / 5
+    #2. Préparation des données pour le graphique 3
+    pre_post_vars = [
+        "pre_A4B2", "pre_M1", "pre_D1", "pre_D2",
+        "pre_5HT1a", "pre_5HT1b", "pre_5HT2a",
+        "pre_5HT4", "pre_5HT6",
+        "post_VAChT", "post_DAT", "post_5HTT"
     ]
-    
-    radii3 = np.append(radii3a, radii3b_avg)
+    radii3 = np.array([data_to_plot[var] if var in data_to_plot else 0 for var in pre_post_vars])
     radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
+    # 2. Calcul des ratios pre/post comme NeuroTmap.py
+    # pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
+    # post_systems = ['VAChT', 'DAT', '5HTT']
     
-    # Couleurs identiques à NeuroTmap
+    # def safe_get(data, system, prefix):
+    #     col = f'{prefix}_{system}'
+    #     return data[col] if col in data else 0.0
+    
+    # radii3a, radii3b = [], []
+    # for i, sys in enumerate(pre_systems):
+    #     recep = max(safe_get(data_to_plot, sys, 'loc_inj_perc'), safe_get(data_to_plot, sys, 'tract_inj_perc'))
+    #     trans_sys = 'VAChT' if sys in ['A4B2', 'M1'] else 'DAT' if sys in ['D1', 'D2'] else '5HTT'
+    #     trans = max(safe_get(data_to_plot, trans_sys, 'loc_inj_perc'), safe_get(data_to_plot, trans_sys, 'tract_inj_perc'))
+        
+    #     radii3a.append(trans / 0.1 if recep == 0 else trans / recep)
+    #     radii3b.append(recep / 0.1 if trans == 0 else recep / trans)
+    
+    # radii3b_avg = [
+    #     (radii3b[0] + radii3b[1]) / 2,
+    #     (radii3b[2] + radii3b[3]) / 2,
+    #     sum(radii3b[4:9]) / 5
+    # ]
+    
+    # radii3 = np.append(radii3a, radii3b_avg)
+    # radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
+    
     # Si overlay, définir une couleur unique -- peut être ajouté hachure transparente pour le rendu
     if is_overlay:
         if title_suffix not in st.session_state.overlay_color_map:
@@ -246,24 +254,7 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         # colors1 = ["#B7B3D7", "#928CC1", "#6E66AD", "#B7DEDA", "#92CEC8", "#6BBDB5", 
         #         "#EBA8B1", "#FCFCED", "#FBFAE2", "#F8F8D6", "#F8F6CB", "#F6F4BE", "#F5F2B3"]
         # colors3 = ['#42BDB5' if val > 1 else '#F5F2B3' for val in radii3]
-    
-    # Création des subplots
-    # fig = sp.make_subplots(
-    #     rows=3, cols=1,
-    #     # specs=[[{'type': 'polar'}, {'type': 'polar'}],
-    #     #      [{'type': 'polar'}, None]],
-    #     # column_widths=[0.5, 0.5],
-    #     specs=[[{'type': 'polar'}],
-    #        [{'type': 'polar'}],
-    #        [{'type': 'polar'}]],
-    #     vertical_spacing=0.15 ,
-    #     subplot_titles=(
-    #         f'Receptor/transporter lesion \n',
-    #         f'Pre/post synaptic ratios (log scale)\n',
-    #         f'Receptor/transporter disconnection\n'
-    #     )
-    # )
-   
+
     # Configuration commune
     config = {
         'title_x': 0.2,  # Centre les titres ajustable
