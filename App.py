@@ -1067,29 +1067,31 @@ if uploaded_zip is not None and not df_combined.empty:
             
             # Bouton Apply Overlay
             if st.button("Apply Overlay"):
-                # Met à jour la sélection courante avec la sélection active dans le widget
-                current_overlay = st.session_state.get("overlay_subjects", [])
-                new_subjects = [s for s in overlay_subjects if s not in current_overlay]
-                if new_subjects:
-                    if "overlay_plots" not in st.session_state or st.session_state.overlay_plots is None:
-                        st.session_state.overlay_plots = []
-                    for subj in new_subjects:
-                        fig1_ov, fig2_ov, fig3_ov, _, _ = create_interactive_plots(
-                            df_combined,
-                            [subj],  
-                            title_suffix=overlay_title,
-                            is_group=False,
-                            is_overlay=True
-                        )
-                    
-                        st.session_state.overlay_plots.append((fig1_ov, fig2_ov, fig3_ov))
-                        st.session_state.overlay_subjects.append(subj)
-                    st.session_state.overlay_title = overlay_title
-                    st.session_state.overlay_ready = True
-                    # Afficher le nombre de sujets APRÈS la mise à jour
-                    st.write(f"Number of subjects currently applied in overlay: {len(st.session_state.overlay_subjects)}")
-                else:
-                    st.info("Selected subject(s) already in overlay.")
+                with st.spinner("Generating  overlay profile..."):
+                    # Met à jour la sélection courante avec la sélection active dans le widget
+                    is_group = overlay_type != "Single subject"
+                    current_overlay = st.session_state.get("overlay_subjects", [])
+                    new_subjects = [s for s in overlay_subjects if s not in current_overlay]
+                    if new_subjects:
+                        if "overlay_plots" not in st.session_state :
+                            st.session_state.overlay_plots = []
+                        for subj in new_subjects:
+                            fig1_ov, fig2_ov, fig3_ov, _, _ = create_interactive_plots(
+                                df_combined,
+                                [subj],  
+                                title_suffix=overlay_title,
+                                is_group=is_group,
+                                is_overlay=True
+                            )
+                        
+                            st.session_state.overlay_plots.append((fig1_ov, fig2_ov, fig3_ov))
+                            st.session_state.overlay_subjects.append(subj)
+                            st.session_state.overlay_title = overlay_title
+                            st.session_state.overlay_ready = True
+                        # Afficher le nombre de sujets APRÈS la mise à jour
+                        st.write(f"Number of subjects currently applied in overlay: {len(st.session_state.overlay_subjects)}")
+                    else:
+                        st.info("Selected subject(s) already in overlay.")
 
             #bouton pour clear tous les sujets overlay
             
