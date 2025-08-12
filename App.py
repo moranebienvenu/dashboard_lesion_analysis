@@ -877,6 +877,14 @@ def clean_predictor_name(name):
                     if isinstance(name, str) and name.startswith("Q('") and name.endswith("')"):
                         return name[3:-2]
                     return name
+
+def style_corr_with_pval(corr_df, pval_df, p_thresh):
+    def highlight(val, pval):
+        if pval >= p_thresh:
+            # Griser les cases en conservanr la valeur
+            return 'color: lightgray;'
+        else:
+            return ''
 # ------------------------ Streamlit app ---------------------------------------------------------------
 st.set_page_config(layout="wide")
 st.markdown(
@@ -2361,33 +2369,77 @@ if uploaded_zip is not None and not df_combined.empty:
 
                 # Préparer la matrice à afficher : masquer si nécessaire les corrélations non-significatives selon le seuil choisit par l'utilisateur
                 cross_corr_plot = data['cross_corr'].copy()
+                corr = data['cross_corr'].values
+                pvals = data['cross_pvals'].values
+                x = data['cross_corr'].columns.tolist()
+                y = data['cross_corr'].index.tolist()
+
 
                 if not show_all:
                     mask = data['cross_pvals'] >= p_thresh
                     cross_corr_plot = cross_corr_plot.mask(mask)
 
-                # Plotly heatmap -- si equal fonctionne pas bien, possibilité d'ajusté manuellement la taille des cellules de la heatmap
-                fig = px.imshow(
-                    cross_corr_plot,
-                    color_continuous_scale='RdBu_r',
-                    zmin=-1, zmax=1,
-                    text_auto=".2f",
-                    aspect="equal",
-                    labels=dict(color="Correlation")
-                )
-                fig.update_traces(
-                    hoverongaps=False
-                )
+                fig = go.Figure(go.Heatmap(
+                    z=corr,
+                    x=x,
+                    y=y,
+                    colorscale='RdBu_r',
+                    zmin=-1,
+                    zmax=1,
+                    text=np.round(corr, 2),
+                    texttemplate="%{text}",
+                    hoverongaps=False,
+                    colorbar=dict(title="Correlation"),
+                ))
+
+                shapes = []
+                for i, yi in enumerate(y):
+                    for j, xj in enumerate(x):
+                        if mask[i,j]:
+                            shapes.append(dict(
+                                type="rect",
+                                xref="x",
+                                yref="y",
+                                x0=xj,
+                                x1=xj,
+                                y0=yi,
+                                y1=yi,
+                                xanchor="center",
+                                yanchor="middle",
+                                fillcolor="rgba(200,200,200,0.6)",
+                                line_width=0,
+                                layer="above"
+                            ))
+
                 fig.update_layout(
-                    title=f"Correlations {data['session1']} vs {data['session2']}",
-                    margin=dict(l=40, r=40, t=40, b=40),
-                    coloraxis_colorbar=dict(title="Correlation"),
-                    xaxis=dict(tickangle=45, showgrid=False, zeroline=False,tickfont=dict(color='black')),
-                    yaxis=dict(showgrid=False, zeroline=False,tickfont=dict(color='black') ),
-              
+                    shapes=shapes,
+                    yaxis=dict(autorange='reversed'),
+                    xaxis=dict(tickangle=45),
                 )
-                
+
                 st.plotly_chart(fig, use_container_width=True)
+                # Plotly heatmap -- si equal fonctionne pas bien, possibilité d'ajusté manuellement la taille des cellules de la heatmap
+                # fig = px.imshow(
+                #     cross_corr_plot,
+                #     color_continuous_scale='RdBu_r',
+                #     zmin=-1, zmax=1,
+                #     text_auto=".2f",
+                #     aspect="equal",
+                #     labels=dict(color="Correlation")
+                # )
+                # fig.update_traces(
+                #     hoverongaps=False
+                # )
+                # fig.update_layout(
+                #     title=f"Correlations {data['session1']} vs {data['session2']}",
+                #     margin=dict(l=40, r=40, t=40, b=40),
+                #     coloraxis_colorbar=dict(title="Correlation"),
+                #     xaxis=dict(tickangle=45, showgrid=False, zeroline=False,tickfont=dict(color='black')),
+                #     yaxis=dict(showgrid=False, zeroline=False,tickfont=dict(color='black') ),
+              
+                # )
+                
+                # st.plotly_chart(fig, use_container_width=True)
                 
                 # Exporter en format PDF (format csv déjà disponible sur la figure interactive pour chaque table séparément)
                 if st.session_state.corr['data_ready']:
