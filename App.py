@@ -2414,6 +2414,8 @@ if uploaded_zip is not None and not df_combined.empty:
                     shapes=shapes,
                     #margin=dict(l=100, r=50, t=80, b=100),
                     autosize=True,
+                    height=600,  
+                    width=800, 
                     yaxis=dict(
                         automargin=True,
                         scaleanchor="x",
