@@ -236,9 +236,14 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         colors1 = [overlay_color] * len(systems)
         colors3 = [overlay_color if val > 1 else overlay_color.replace("0.5", "0.2") for val in radii3]
     else:
-        colors1 = ["#B7B3D7", "#928CC1", "#6E66AD", "#B7DEDA", "#92CEC8", "#6BBDB5", 
-                "#EBA8B1", "#FCFCED", "#FBFAE2", "#F8F8D6", "#F8F6CB", "#F6F4BE", "#F5F2B3"]
-        colors3 = ['#42BDB5' if val > 1 else '#F5F2B3' for val in radii3]
+
+        fixed_color = "#FFFF99"  # jaune clair 
+        colors1 = [fixed_color] * len(systems)
+        colors3 = [fixed_color] * len(radii3)
+        #configuration de base dans NeuroTmap pour un seul sujet
+        # colors1 = ["#B7B3D7", "#928CC1", "#6E66AD", "#B7DEDA", "#92CEC8", "#6BBDB5", 
+        #         "#EBA8B1", "#FCFCED", "#FBFAE2", "#F8F8D6", "#F8F6CB", "#F6F4BE", "#F5F2B3"]
+        # colors3 = ['#42BDB5' if val > 1 else '#F5F2B3' for val in radii3]
     
     # Création des subplots
     # fig = sp.make_subplots(
@@ -879,7 +884,6 @@ def clean_predictor_name(name):
                         return name[3:-2]
                     return name
 # ------------------------ Streamlit app ---------------------------------------------------------------
-
 st.set_page_config(layout="wide")
 st.markdown(
     """
@@ -922,15 +926,16 @@ st.markdown(
 
     <div class="custom-container">
         <div class="custom-title">
-            🧠 Neurotransmitter Ratio and Clinical Outcomes
+            🧠 Neurotransmitter Balance & Outcomes
         </div>
         <div class="custom-subtitle">
-            Interactive Dashboard
+            Explore neurotransmitter ratios and their clinical relevance
         </div>
     </div>
     """,
     unsafe_allow_html=True
     )
+
 
 # 1. Upload
 uploaded_zip = st.file_uploader(
@@ -1142,6 +1147,8 @@ if uploaded_zip is not None and not df_combined.empty:
                 overlay_subjects = st.session_state.get("overlay_subjects", [])
                 all_subjects = list(set(subjects) | set(overlay_subjects))
                 st.dataframe(df_combined[df_combined['subject'].isin(all_subjects)])
+
+
 
     # ------------------------Analyses statistiques ------------------------
 
