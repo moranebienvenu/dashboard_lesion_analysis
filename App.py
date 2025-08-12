@@ -2375,14 +2375,15 @@ if uploaded_zip is not None and not df_combined.empty:
                 y = data['cross_corr'].index.tolist()
 
 
-                if not show_all:
-                    mask = data['cross_pvals'] >= p_thresh
-                    cross_corr_plot = cross_corr_plot.mask(mask)
+                # if not show_all:
+                #     mask = data['cross_pvals'] >= p_thresh
+                #     cross_corr_plot = cross_corr_plot.mask(mask)
+                mask = ((data['cross_pvals'] >= p_thresh) & (~show_all)).values
 
                 fig = go.Figure(go.Heatmap(
                     z=corr,
-                    x=x,
-                    y=y,
+                    x=list(range(len(x))),
+                    y=list(range(len(y))),
                     colorscale='RdBu_r',
                     zmin=-1,
                     zmax=1,
@@ -2393,31 +2394,38 @@ if uploaded_zip is not None and not df_combined.empty:
                 ))
 
                 shapes = []
-                for i, yi in enumerate(y):
-                    for j, xj in enumerate(x):
-                        if mask[i,j]:
+                for i in range(len(y)):
+                    for j in range(len(x)):
+                        if mask[i, j]:
                             shapes.append(dict(
                                 type="rect",
                                 xref="x",
                                 yref="y",
-                                x0=xj,
-                                x1=xj,
-                                y0=yi,
-                                y1=yi,
-                                xanchor="center",
-                                yanchor="middle",
-                                fillcolor="rgba(200,200,200,0.6)",
+                                x0=j - 0.5,
+                                x1=j + 0.5,
+                                y0=i - 0.5,
+                                y1=i + 0.5,
+                                fillcolor="rgba(200,200,200,0.5)",
                                 line_width=0,
                                 layer="above"
                             ))
 
                 fig.update_layout(
                     shapes=shapes,
-                    yaxis=dict(autorange='reversed'),
-                    xaxis=dict(tickangle=45),
+                    yaxis=dict(
+                        autorange='reversed',
+                        tickvals=list(range(len(y))),
+                        ticktext=y,
+                    ),
+                    xaxis=dict(
+                        tickvals=list(range(len(x))),
+                        ticktext=x,
+                        tickangle=45
+                    ),
                 )
 
                 st.plotly_chart(fig, use_container_width=True)
+    
                 # Plotly heatmap -- si equal fonctionne pas bien, possibilité d'ajusté manuellement la taille des cellules de la heatmap
                 # fig = px.imshow(
                 #     cross_corr_plot,
