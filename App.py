@@ -198,19 +198,14 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     tract_inj_perc = [data_to_plot[f'tract_inj_perc_{sys}'] for sys in systems]
     
     #2. Préparation des données pour le graphique 3
-    pre_post_vars = [
-        "pre_A4B2", "pre_M1", "pre_D1", "pre_D2",
-        "pre_5HT1a", "pre_5HT1b", "pre_5HT2a",
-        "pre_5HT4", "pre_5HT6",
-        "post_VAChT", "post_DAT", "post_5HTT"
-    ]
-    radii3 = np.array([data_to_plot[var] if var in data_to_plot else 0 for var in pre_post_vars])
+    pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
+    post_systems = ['VAChT', 'DAT', '5HTT']
+
+    radii3 = [data_to_plot[f'pre_{sys}'] for sys in pre_systems] or  [data_to_plot[f'post_{sys}'] for sys in post_systems]
     radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
-    theta_labels = [var.replace("_", " ") for var in pre_post_vars]
 
     # 2. Calcul des ratios pre/post comme NeuroTmap.py
-    # pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
-    # post_systems = ['VAChT', 'DAT', '5HTT']
+    
     
     # def safe_get(data, system, prefix):
     #     col = f'{prefix}_{system}'
@@ -318,7 +313,7 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     # Graphique 3: Ratios
     fig3.add_trace(go.Barpolar(
         r=radii3_log,
-        theta= theta_labels, #[f"pre {sys}" for sys in pre_systems] + [f"post {sys}" for sys in post_systems],
+        theta= [f"pre {sys}" for sys in pre_systems] + [f"post {sys}" for sys in post_systems],
         marker_color=colors3,
         name=title_suffix,
         hovertemplate='<b>%{theta}</b><br>%{r:.2f}<extra></extra>',
