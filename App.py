@@ -1071,7 +1071,7 @@ if uploaded_zip is not None and not df_combined.empty:
                 current_overlay = st.session_state.get("overlay_subjects", [])
                 new_subjects = [s for s in overlay_subjects if s not in current_overlay]
                 if new_subjects:
-                    if "overlay_plots" not in st.session_state:
+                    if "overlay_plots" not in st.session_state or st.session_state.overlay_plots is None:
                         st.session_state.overlay_plots = []
                     for subj in new_subjects:
                         fig1_ov, fig2_ov, fig3_ov, _, _ = create_interactive_plots(
@@ -1082,7 +1082,7 @@ if uploaded_zip is not None and not df_combined.empty:
                             is_overlay=True
                         )
                     
-                        st.session_state.overlay_plots= (fig1_ov, fig2_ov, fig3_ov)
+                        st.session_state.overlay_plots.append((fig1_ov, fig2_ov, fig3_ov))
                         st.session_state.overlay_subjects.append(subj)
                     st.session_state.overlay_title = overlay_title
                     st.session_state.overlay_ready = True
