@@ -253,7 +253,7 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
 
         # Définir une liste de couleurs transparentes pour le overlay
         colors1 = [overlay_color] * len(systems)
-        colors3 = [fixed_color_strong if np.exp(val) > 1 else fixed_color_light for val in radii3_log]
+        colors3 = [overlay_color if np.exp(val) > 1 else overlay_color.replace("0.5", "0.2") for val in radii3_log]
       
     else:
 
