@@ -195,7 +195,6 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     post_cols=[f'post_{sys}' for sys in post_systems if f'post_{sys}' in df.columns]
     if is_group or len(subjects) > 1:
         # Cas groupe : on calcule la moyenne
-        #data_to_plot = plot_data.mean(numeric_only=True)
         mean_values = {}
         for col in loc_cols:
             mean_values[col] = plot_data[col].mean()
@@ -222,7 +221,6 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     radii3_log = pre_cols_used + post_cols_used
 
     # 2. Calcul des ratios pre/post comme NeuroTmap.py
-    
     # def safe_get(data, system, prefix):
     #     col = f'{prefix}_{system}'
     #     return data[col] if col in data else 0.0
@@ -256,7 +254,7 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         # Définir une liste de couleurs transparentes pour le overlay
         colors1 = [overlay_color] * len(systems)
         colors3 = [fixed_color_strong if np.exp(val) > 1 else fixed_color_light for val in radii3_log]
-        #colors3 = [overlay_color if val > 1 else overlay_color.replace("0.5", "0.2") for val in radii3_log]#radii3]
+      
     else:
 
         fixed_color_strong = 'lightskyblue'    # bleu pastel 
@@ -264,7 +262,7 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
 
         colors1 = [fixed_color_strong] * len(systems)
         colors3 = [fixed_color_strong if np.exp(val) > 1 else fixed_color_light for val in radii3_log]
-        #colors3 = [fixed_color_strong if val > 1 else fixed_color_light for val in radii3_log] #radii3]
+      
         #configuration de base dans NeuroTmap pour un seul sujet
         # colors1 = ["#B7B3D7", "#928CC1", "#6E66AD", "#B7DEDA", "#92CEC8", "#6BBDB5", 
         #         "#EBA8B1", "#FCFCED", "#FBFAE2", "#F8F8D6", "#F8F6CB", "#F6F4BE", "#F5F2B3"]
@@ -343,7 +341,6 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
         polar_radialaxis_range=[-1, 1],
         height=500,  
         showlegend=True,
-        #margin=dict(l=30, r=10, t=10, b=10),
         font=dict(size=12),
         **config
     )
@@ -1040,6 +1037,13 @@ if uploaded_zip is not None and not df_combined.empty:
         # 2. Options d'affichage et overlay
         st.subheader("Display Options")
         show_data = st.checkbox("Show selected data", value=False)
+
+        # Afficher les données si demandé
+        if show_data:
+            st.subheader("Selected Subjects Data")
+            overlay_subjects = st.session_state.get("overlay_subjects", [])
+            all_subjects = list(set(subjects) | set(overlay_subjects))
+            st.dataframe(df_combined[df_combined['subject'].isin(all_subjects)])
         
         prev_show_overlay = st.session_state.get("show_overlay", False)
         show_overlay = st.checkbox(
@@ -1142,26 +1146,6 @@ if uploaded_zip is not None and not df_combined.empty:
                             st.write(f"Overlay applied for {len(new_subjects)} subject(s).")
                         else:
                             st.info("Selected subject(s) already in overlay.")
-                    # new_subjects:
-                        
-                        # for subj in new_subjects:
-                        #     fig1_ov, fig2_ov, fig3_ov, _, _ = create_interactive_plots(
-                        #         df_combined,
-                        #         [subj],  
-                        #         title_suffix=overlay_title,
-                        #         is_group=is_group,
-                        #         is_overlay=True
-                        #     )
-                        #     if "overlay_plots" not in st.session_state :
-                        #         st.session_state.overlay_plots = []
-                        #     st.session_state.overlay_plots= (fig1_ov, fig2_ov, fig3_ov)
-                        #     st.session_state.overlay_subjects.append(subj)
-                        #     st.session_state.overlay_title = overlay_title
-                        #     st.session_state.overlay_ready = True
-                        # Afficher le nombre de sujets APRÈS la mise à jour
-                    #     st.write(f"Number of subjects currently applied in overlay: {len(st.session_state.overlay_subjects)}")
-                    # else:
-                    #     st.info("Selected subject(s) already in overlay.")
 
             #bouton pour clear tous les sujets overlay
             
@@ -1198,12 +1182,7 @@ if uploaded_zip is not None and not df_combined.empty:
         with col2:
             st.plotly_chart(fig3, use_container_width=True)
             
-            # Afficher les données si demandé
-            if show_data:
-                st.subheader("Selected Subjects Data")
-                overlay_subjects = st.session_state.get("overlay_subjects", [])
-                all_subjects = list(set(subjects) | set(overlay_subjects))
-                st.dataframe(df_combined[df_combined['subject'].isin(all_subjects)])
+            
 
 
 
