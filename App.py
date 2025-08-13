@@ -189,6 +189,10 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     # Colonnes d'intérêt pour la moyenne
     loc_cols = [f'loc_inj_perc_{sys}' for sys in systems if f'loc_inj_perc_{sys}' in df.columns]
     tract_cols = [f'tract_inj_perc_{sys}' for sys in systems if f'tract_inj_perc_{sys}' in df.columns]
+    pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
+    pre_cols=[f'pre_{sys}' for sys in pre_systems if f'pre_{sys}' in df.columns]
+    post_systems = ['VAChT', 'DAT', '5HTT']
+    post_cols=[f'post_{sys}' for sys in post_systems if f'post_{sys}' in df.columns]
     if is_group or len(subjects) > 1:
         # Cas groupe : on calcule la moyenne
         #data_to_plot = plot_data.mean(numeric_only=True)
@@ -197,7 +201,12 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
             mean_values[col] = plot_data[col].mean()
         for col in tract_cols:
             mean_values[col] = plot_data[col].mean()
+        for col in pre_cols:
+            mean_values[col]=plot_data[col].mean()
+        for col in post_cols:
+            mean_values[col]=plot_data[col].mean()
         data_to_plot = pd.Series(mean_values)
+        
     else:
         # Cas sujet unique : on prend les données brutes
         data_to_plot = plot_data.iloc[0]  
@@ -207,31 +216,34 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
     loc_inj_perc = [data_to_plot[f'loc_inj_perc_{sys}'] for sys in systems]
     tract_inj_perc = [data_to_plot[f'tract_inj_perc_{sys}'] for sys in systems]
 
-    # 2. Calcul des ratios pre/post comme NeuroTmap.py
-    pre_systems = ['A4B2', 'M1', 'D1', 'D2', '5HT1a', '5HT1b', '5HT2a', '5HT4', '5HT6']
-    post_systems = ['VAChT', 'DAT', '5HTT']
+     # 2. Préparation des données pour le graphiques 3
+    pre_cols_used=[data_to_plot[f'pre_{sys}'] for sys in pre_systems]
+    post_cols_used=[data_to_plot[f'post_{sys}'] for sys in post_systems]
+    radii3_log = pre_cols_used + post_cols_used
 
-    def safe_get(data, system, prefix):
-        col = f'{prefix}_{system}'
-        return data[col] if col in data else 0.0
+    # 2. Calcul des ratios pre/post comme NeuroTmap.py
     
-    radii3a, radii3b = [], []
-    for i, sys in enumerate(pre_systems):
-        recep = max(safe_get(data_to_plot, sys, 'loc_inj_perc'), safe_get(data_to_plot, sys, 'tract_inj_perc'))
-        trans_sys = 'VAChT' if sys in ['A4B2', 'M1'] else 'DAT' if sys in ['D1', 'D2'] else '5HTT'
-        trans = max(safe_get(data_to_plot, trans_sys, 'loc_inj_perc'), safe_get(data_to_plot, trans_sys, 'tract_inj_perc'))
+    # def safe_get(data, system, prefix):
+    #     col = f'{prefix}_{system}'
+    #     return data[col] if col in data else 0.0
+    
+    # radii3a, radii3b = [], []
+    # for i, sys in enumerate(pre_systems):
+    #     recep = max(safe_get(data_to_plot, sys, 'loc_inj_perc'), safe_get(data_to_plot, sys, 'tract_inj_perc'))
+    #     trans_sys = 'VAChT' if sys in ['A4B2', 'M1'] else 'DAT' if sys in ['D1', 'D2'] else '5HTT'
+    #     trans = max(safe_get(data_to_plot, trans_sys, 'loc_inj_perc'), safe_get(data_to_plot, trans_sys, 'tract_inj_perc'))
         
-        radii3a.append(trans / 0.1 if recep == 0 else trans / recep)
-        radii3b.append(recep / 0.1 if trans == 0 else recep / trans)
+    #     radii3a.append(trans / 0.1 if recep == 0 else trans / recep)
+    #     radii3b.append(recep / 0.1 if trans == 0 else recep / trans)
     
-    radii3b_avg = [
-        (radii3b[0] + radii3b[1]) / 2,
-        (radii3b[2] + radii3b[3]) / 2,
-        sum(radii3b[4:9]) / 5
-    ]
+    # radii3b_avg = [
+    #     (radii3b[0] + radii3b[1]) / 2,
+    #     (radii3b[2] + radii3b[3]) / 2,
+    #     sum(radii3b[4:9]) / 5
+    # ]
     
-    radii3 = np.append(radii3a, radii3b_avg)
-    radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
+    # radii3 = np.append(radii3a, radii3b_avg)
+    # radii3_log = np.where(radii3 == 0, -1, np.log(radii3))
     
     # Si overlay, définir une couleur unique -- peut être ajouté hachure transparente pour le rendu
     if is_overlay:
@@ -243,14 +255,16 @@ def create_interactive_plots(df, subjects, title_suffix="", is_group=False, is_o
 
         # Définir une liste de couleurs transparentes pour le overlay
         colors1 = [overlay_color] * len(systems)
-        colors3 = [overlay_color if val > 1 else overlay_color.replace("0.5", "0.2") for val in radii3]
+        colors3 = [fixed_color_strong if np.exp(val) > 1 else fixed_color_light for val in radii3_log]
+        #colors3 = [overlay_color if val > 1 else overlay_color.replace("0.5", "0.2") for val in radii3_log]#radii3]
     else:
 
         fixed_color_strong = 'lightskyblue'    # bleu pastel 
         fixed_color_light = 'rgba(135, 206, 250, 0.3)' # même bleu avec 0.3 d'opacité 
 
         colors1 = [fixed_color_strong] * len(systems)
-        colors3 = [fixed_color_strong if val > 1 else fixed_color_light for val in radii3]
+        colors3 = [fixed_color_strong if np.exp(val) > 1 else fixed_color_light for val in radii3_log]
+        #colors3 = [fixed_color_strong if val > 1 else fixed_color_light for val in radii3_log] #radii3]
         #configuration de base dans NeuroTmap pour un seul sujet
         # colors1 = ["#B7B3D7", "#928CC1", "#6E66AD", "#B7DEDA", "#92CEC8", "#6BBDB5", 
         #         "#EBA8B1", "#FCFCED", "#FBFAE2", "#F8F8D6", "#F8F6CB", "#F6F4BE", "#F5F2B3"]
