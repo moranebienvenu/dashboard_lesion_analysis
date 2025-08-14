@@ -2384,10 +2384,12 @@ if uploaded_zip is not None and not df_combined.empty:
                     texttemplate="%{text}",
                     hoverongaps=False,
                     colorbar=dict(
-                    title="Correlation",
-                    titlefont=dict(color="black"), 
-                    tickfont=dict(color="black")    
-                ),
+                        title=dict(
+                            text="Correlation",
+                            font=dict(color="black")
+                        ),
+                        tickfont=dict(color="black")
+                    )
                 ))
 
                 shapes = []
