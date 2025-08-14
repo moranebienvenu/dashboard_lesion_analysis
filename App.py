@@ -2427,7 +2427,8 @@ if uploaded_zip is not None and not df_combined.empty:
                         tickwidth=1,
                         tickcolor='#000',
                         showgrid=False,
-                        tickfont=dict(color='black') 
+                        tickfont=dict(color='black'),
+                        zeroline=False
                     ),
                     xaxis=dict(
                         tickvals=list(range(len(x))),
@@ -2438,7 +2439,9 @@ if uploaded_zip is not None and not df_combined.empty:
                         tickwidth=1,
                         tickcolor='#000',
                         showgrid=False,
-                        tickfont=dict(color='black') 
+                        tickfont=dict(color='black'),
+                        zeroline=False
+
                     ),
                 )
 
