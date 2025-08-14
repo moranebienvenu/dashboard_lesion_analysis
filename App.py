@@ -2415,9 +2415,9 @@ if uploaded_zip is not None and not df_combined.empty:
                 fig.update_layout(
                     shapes=shapes,
                     margin=dict(l=40, r=40, t=40, b=40),
-                    # autosize=True,
-                    # height=600,  
-                    # width=800, 
+                    autosize=True,
+                    height=600,  
+                    width=800, 
                     yaxis=dict(
                         #automargin=True,
                         scaleanchor="x",
