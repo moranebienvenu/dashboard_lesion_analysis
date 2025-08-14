@@ -2408,15 +2408,18 @@ if uploaded_zip is not None and not df_combined.empty:
                                 line_width=0,
                                 layer="above"
                             ))
+                fig.update_traces(
+                    hoverongaps=False
+                )
 
                 fig.update_layout(
                     shapes=shapes,
-                    margin=dict(l=10, r=50, t=80, b=100),
-                    autosize=True,
-                    height=600,  
-                    width=800, 
+                    margin=dict(l=40, r=40, t=40, b=40),
+                    # autosize=True,
+                    # height=600,  
+                    # width=800, 
                     yaxis=dict(
-                        automargin=True,
+                        #automargin=True,
                         scaleanchor="x",
                         scaleratio=1,
                         autorange='reversed',
