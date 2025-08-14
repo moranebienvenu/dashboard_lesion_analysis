@@ -2383,7 +2383,11 @@ if uploaded_zip is not None and not df_combined.empty:
                     text=np.round(corr, 2),
                     texttemplate="%{text}",
                     hoverongaps=False,
-                    colorbar=dict(title="Correlation"),
+                    colorbar=dict(
+                    title="Correlation",
+                    titlefont=dict(color="black"), 
+                    tickfont=dict(color="black")    
+                ),
                 ))
 
                 shapes = []
