@@ -479,6 +479,12 @@ def detect_group(subject_id):
         return "W"
     elif "_sub-G" in subject_id or "-G" in subject_id: 
         return "G"
+    elif "_sub-TCM" in subject_id or "-TCM" in subject_id: 
+        return "TCM"
+    elif "_sub-TCS" in subject_id or "-TCS" in subject_id: 
+        return "TCS"
+    elif "_sub-TCMix" in subject_id or "-TCMix" in subject_id: 
+        return "TCMix"
     else:
         return "Unknown"
 
@@ -971,7 +977,7 @@ st.caption(
     "- *(Optional)* One `clinical_data.csv` or `.xlsx` file\n\n"
     "**Important:**\n"
     "- Subject IDs in all files must follow the format: `sub-<group letter>XXX-...`\n"
-    "  - Group letters: NA (Non-aphasic), A (Aphasic), G (Global aphasia), W (Wernicke aphasia), B(Broca aphasia), C (Conduction aphasia), AN (Anomic aphasia)\n"
+    "  - Group letters: NA (Non-aphasic), A (Aphasic), G (Global aphasia), W (Wernicke aphasia), B (Broca aphasia), C (Conduction aphasia), AN (Anomic aphasia), TCM (Transcortical Motor), TCS (Transcortical Sensory), TCMix (Transcortical Mixed)\n"
     "- The `clinical_data` file must include a `subject` column **exactly matching** the IDs in the filenames.\n"
     "- You may include other columns such as: `sex`, `timepoint`, `repetition_score`, "
     "`comprehension_score`, `naming_score`, `composite_score`, `lesion_volume`.\n"
@@ -1039,7 +1045,10 @@ if uploaded_zip is not None and not df_combined.empty:
                 "- W = Wernicke aphasia\n"
                 "- B = Broca aphasia\n"
                 "- C = Conduction aphasia\n"
-                "- AN = Anomic aphasia"
+                "- AN = Anomic aphasia\n"
+                "-TCM = Transcortical Motor\n"
+                "-TCS = Transcortical Sensory\n"
+                "-TCMix = Transcortical Mixed"
             )
             subject_groups = {
                 subj: detect_group(subj) for subj in subjects
