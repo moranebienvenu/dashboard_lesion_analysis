@@ -420,6 +420,10 @@ def get_subjects_and_title(df, analysis_type, existing_subjects=None, is_overlay
         title = f"{title_prefix}: Session {session}"
         if sex_filter != "All":
             title += f" ({sex_filter})"
+        
+        # Ajouter les groupes
+        groups = sorted(set(detect_group(s) for s in subjects))
+        title += f" | Groups: {', '.join(groups)}"
             
         return subjects, title, sex_filter, session
 
@@ -460,19 +464,20 @@ def get_subjects_and_title(df, analysis_type, existing_subjects=None, is_overlay
         title = f"{title_prefix}:  "
         title += f"{', '.join(selected_sessions)} sessions"
         title += f", {', '.join(selected_genders)}"
+        groups = sorted(set(detect_group(s) for s in subjects))
+        title += f" | Groups: {', '.join(groups)}"
         
         return subjects, title, None, None
 
 def detect_group(subject_id):
     if "_sub-NA" in subject_id or "-NA" in subject_id:
         return "NA"
-    elif "_sub-A" in subject_id or "-A" in subject_id:
-        return "A"
-    #pour les sujets controles pas possible dans NeuroTmap mais peut etre permettre comparaison des scores cliniques uniquement
-    elif "_sub-C" in subject_id or "-C" in subject_id: 
-        return "C"
     elif "_sub-AN" in subject_id or "-AN" in subject_id: 
         return "AN"
+    elif "_sub-A" in subject_id or "-A" in subject_id:
+        return "A"
+    elif "_sub-C" in subject_id or "-C" in subject_id: 
+        return "C"
     elif "_sub-B" in subject_id or "-B" in subject_id: 
         return "B"
     elif "_sub-W" in subject_id or "-W" in subject_id: 
