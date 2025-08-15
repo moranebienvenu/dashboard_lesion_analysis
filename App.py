@@ -1035,20 +1035,20 @@ if uploaded_zip is not None and not df_combined.empty:
         #doit enlever le detect_group si "Single Subject" -- crée un bug
         subjects, plot_title, sex_filter, session = get_subjects_and_title(df_combined, analysis_type,context="main")
         if analysis_type != "Single subject":
-            st.write(
+            st.markdown(
                 "Select the subject groups to include in the analysis. "
                 "If you do not want to include a group, simply **uncheck** it.\n\n"
                 "**Groups:**\n"
-                "- NA = Non-aphasic\n"
-                "- A = Aphasic\n"
-                "- G = Global aphasia\n"
-                "- W = Wernicke aphasia\n"
-                "- B = Broca aphasia\n"
-                "- C = Conduction aphasia\n"
-                "- AN = Anomic aphasia\n"
-                "-TCM = Transcortical Motor\n"
-                "-TCS = Transcortical Sensory\n"
-                "-TCMix = Transcortical Mixed"
+                "- NA = Non-aphasic  \n"
+                "- A = Aphasic  \n"
+                "- G = Global aphasia  \n"
+                "- W = Wernicke aphasia  \n"
+                "- B = Broca aphasia  \n"
+                "- C = Conduction aphasia  \n"
+                "- AN = Anomic aphasia  \n"
+                "- TCM = Transcortical Motor  \n"
+                "- TCS = Transcortical Sensory  \n"
+                "- TCMix = Transcortical Mixed"
             )
             subject_groups = {
                 subj: detect_group(subj) for subj in subjects
