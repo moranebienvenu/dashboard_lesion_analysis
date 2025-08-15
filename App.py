@@ -1421,17 +1421,17 @@ if uploaded_zip is not None and not df_combined.empty:
                     context="corr_group1"
                 )
 
-                group1_subject_groups = {
-                    subj: detect_group(subj) for subj in group1_subjects
-                }
-                available_groups_group1 = sorted(set(group1_subject_groups.values()))
-                selected_groups_group1 = st.multiselect(
-                    "Filter Group 1 by subject group:",
-                    options=available_groups_group1,
-                    default=available_groups_group1,
-                    key="group_filter_group1_corr"
-                )
-                group1_subjects = [subj for subj in group1_subjects if group1_subject_groups[subj] in selected_groups_group1]
+                # group1_subject_groups = {
+                #     subj: detect_group(subj) for subj in group1_subjects
+                # }
+                # available_groups_group1 = sorted(set(group1_subject_groups.values()))
+                # selected_groups_group1 = st.multiselect(
+                #     "Filter Group 1 by subject group:",
+                #     options=available_groups_group1,
+                #     default=available_groups_group1,
+                #     key="group_filter_group1_corr"
+                # )
+                # group1_subjects = [subj for subj in group1_subjects if group1_subject_groups[subj] in selected_groups_group1]
 
             with col2:
                 st.markdown("#### 🔴 Set 2 Configuration")
@@ -1443,17 +1443,17 @@ if uploaded_zip is not None and not df_combined.empty:
                     context="corr_group2"
                 )
 
-                group2_subject_groups = {
-                    subj: detect_group(subj) for subj in group2_subjects
-                }
-                available_groups_group2 = sorted(set(group2_subject_groups.values()))
-                selected_groups_group2 = st.multiselect(
-                    "Filter Group 2 by subject group:",
-                    options=available_groups_group2,
-                    default=available_groups_group2,
-                    key="group_filter_group2_corr"
-                )
-                group2_subjects = [subj for subj in group2_subjects if group2_subject_groups[subj] in selected_groups_group2]
+                # group2_subject_groups = {
+                #     subj: detect_group(subj) for subj in group2_subjects
+                # }
+                # available_groups_group2 = sorted(set(group2_subject_groups.values()))
+                # selected_groups_group2 = st.multiselect(
+                #     "Filter Group 2 by subject group:",
+                #     options=available_groups_group2,
+                #     default=available_groups_group2,
+                #     key="group_filter_group2_corr"
+                # )
+                # group2_subjects = [subj for subj in group2_subjects if group2_subject_groups[subj] in selected_groups_group2]
 
     else:
         # Choix manuel de plusieurs sujets parmi tous (pas de filtre session/sex)
