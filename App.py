@@ -471,6 +471,14 @@ def detect_group(subject_id):
     #pour les sujets controles pas possible dans NeuroTmap mais peut etre permettre comparaison des scores cliniques uniquement
     elif "_sub-C" in subject_id or "-C" in subject_id: 
         return "C"
+    elif "_sub-AN" in subject_id or "-AN" in subject_id: 
+        return "AN"
+    elif "_sub-B" in subject_id or "-B" in subject_id: 
+        return "B"
+    elif "_sub-W" in subject_id or "-W" in subject_id: 
+        return "W"
+    elif "_sub-G" in subject_id or "-G" in subject_id: 
+        return "G"
     else:
         return "Unknown"
 
@@ -957,15 +965,26 @@ uploaded_zip = st.file_uploader(
 )
 
 st.caption(
-    """
-    The ZIP file must include:
-    - One or more `output_les_dis_sub-XXX_ses-VX.csv` files
-    - One or more `output_pre_post_synaptic_ratio_sub-XXX_ses-VX.csv` files
-    - Optional one `clinical_data.csv` or `.xlsx` file  
-      This clinical file **must include a `subject` column** matching the filenames, and can include other variables like:
-      `sex`, `timepoint`, `repetition_score`, `comprehension_score`, `naming_score`, `composite_score`,  `lesion_volume`
-      Lesion volume must be in mm3.
-    """
+    "**The ZIP file must include:**\n"
+    "- One or more `output_les_dis_sub-XXX_ses-VX.csv` files\n"
+    "- One or more `output_pre_post_synaptic_ratio_sub-XXX_ses-VX.csv` files\n"
+    "- *(Optional)* One `clinical_data.csv` or `.xlsx` file\n\n"
+    "**Important:**\n"
+    "- Subject IDs in all files must follow the format: `sub-<group letter>XXX-...`\n"
+    "  - Group letters: NA (Non-aphasic), A (Aphasic), G (Global aphasia), W (Wernicke aphasia), B(Broca aphasia), C (Conduction aphasia), AN (Anomic aphasia)\n"
+    "- The `clinical_data` file must include a `subject` column **exactly matching** the IDs in the filenames.\n"
+    "- You may include other columns such as: `sex`, `timepoint`, `repetition_score`, "
+    "`comprehension_score`, `naming_score`, `composite_score`, `lesion_volume`.\n"
+    "- Lesion volume must be in **mm³**."
+    # """
+    # The ZIP file must include:
+    # - One or more `output_les_dis_sub-XXX_ses-VX.csv` files
+    # - One or more `output_pre_post_synaptic_ratio_sub-XXX_ses-VX.csv` files
+    # - Optional one `clinical_data.csv` or `.xlsx` file  
+    #   This clinical file **must include a `subject` column** matching the filenames, and can include other variables like:
+    #   `sex`, `timepoint`, `repetition_score`, `comprehension_score`, `naming_score`, `composite_score`,  `lesion_volume`
+    #   Lesion volume must be in mm3.
+    # """
 )
 
 if uploaded_zip is not None:
@@ -1010,6 +1029,18 @@ if uploaded_zip is not None and not df_combined.empty:
         #doit enlever le detect_group si "Single Subject" -- crée un bug
         subjects, plot_title, sex_filter, session = get_subjects_and_title(df_combined, analysis_type,context="main")
         if analysis_type != "Single subject":
+            st.write(
+                "Select the subject groups to include in the analysis. "
+                "If you do not want to include a group, simply **uncheck** it.\n\n"
+                "**Groups:**\n"
+                "- NA = Non-aphasic\n"
+                "- A = Aphasic\n"
+                "- G = Global aphasia\n"
+                "- W = Wernicke aphasia\n"
+                "- B = Broca aphasia\n"
+                "- C = Conduction aphasia\n"
+                "- AN = Anomic aphasia"
+            )
             subject_groups = {
                 subj: detect_group(subj) for subj in subjects
             }
