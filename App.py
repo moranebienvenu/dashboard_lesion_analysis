@@ -415,15 +415,30 @@ def get_subjects_and_title(df, analysis_type, existing_subjects=None, is_overlay
         subjects = [s for s in session_subjects if s not in existing_subjects]
         if is_overlay:
             subjects = [s for s in subjects if s not in st.session_state.get("overlay_subjects", [])]
+        
+        # Détecter les groupes disponibles dans ces sujets
+        subject_groups = {subj: detect_group(subj) for subj in subjects}
+        available_groups = sorted(set(subject_groups.values()))
+        
+        # Sélection des groupes par l'utilisateur
+        selected_groups = st.multiselect(
+            "Filter by subject group:",
+            options=available_groups,
+            default=available_groups,
+            key=f"{base_key}_group_filter"
+        )
+    
+        # Filtrage des sujets selon les groupes choisis
+        subjects = [subj for subj in subjects if subject_groups[subj] in selected_groups]
+
 
         # Construction du titre
         title = f"{title_prefix}: Session {session}"
         if sex_filter != "All":
             title += f" ({sex_filter})"
-        
         # Ajouter les groupes
-        groups = sorted(set(detect_group(s) for s in subjects))
-        title += f" | Groups: {', '.join(groups)}"
+        if selected_groups:
+            title += f" | Groups: {', '.join(selected_groups)}"
             
         return subjects, title, sex_filter, session
 
@@ -459,13 +474,27 @@ def get_subjects_and_title(df, analysis_type, existing_subjects=None, is_overlay
         if is_overlay:
             subjects = [s for s in subjects if s not in st.session_state.get("overlay_subjects", [])]
 
-    
+        # Détecter les groupes disponibles
+        subject_groups = {subj: detect_group(subj) for subj in subjects}
+        available_groups = sorted(set(subject_groups.values()))
+        
+        # Sélection des groupes
+        selected_groups = st.multiselect(
+            "Filter by subject group:",
+            options=available_groups,
+            default=available_groups,
+            key=f"{base_key}_group_filter"
+        )
+        
+        # Filtrage des sujets selon les groupes choisis
+        subjects = [subj for subj in subjects if subject_groups[subj] in selected_groups]
+
         # Construction du titre
         title = f"{title_prefix}:  "
         title += f"{', '.join(selected_sessions)} sessions"
         title += f", {', '.join(selected_genders)}"
-        groups = sorted(set(detect_group(s) for s in subjects))
-        title += f" | Groups: {', '.join(groups)}"
+        if selected_groups:
+            title += f" | Groups: {', '.join(selected_groups)}"
         
         return subjects, title, None, None
 
@@ -1055,19 +1084,19 @@ if uploaded_zip is not None and not df_combined.empty:
                 "- TCS = Transcortical Sensory  \n"
                 "- TCMix = Transcortical Mixed"
             )
-            subject_groups = {
-                subj: detect_group(subj) for subj in subjects
-            }
+            # subject_groups = {
+            #     subj: detect_group(subj) for subj in subjects
+            # }
             
-            available_groups = sorted(set(subject_groups.values()))
-            selected_groups = st.multiselect(
-                "Filter by subject group:",
-                options=available_groups,
-                default=available_groups,
-                key="group_filter"
-            )
-            # Filtrer les sujets en fonction des groupes sélectionnés
-            subjects = [subj for subj in subjects if subject_groups[subj] in selected_groups]
+            # available_groups = sorted(set(subject_groups.values()))
+            # selected_groups = st.multiselect(
+            #     "Filter by subject group:",
+            #     options=available_groups,
+            #     default=available_groups,
+            #     key="group_filter"
+            # )
+            # # Filtrer les sujets en fonction des groupes sélectionnés
+            # subjects = [subj for subj in subjects if subject_groups[subj] in selected_groups]
         st.write(f"Number of subjects in main profile: {len(subjects)}")
         # Bouton de génération
         if st.button("Generate Main Profile"):
@@ -1129,19 +1158,34 @@ if uploaded_zip is not None and not df_combined.empty:
                 context="overlay"
             )
             if overlay_type != "Single subject":
-                overlay_subject_groups = {
-                    subj: detect_group(subj) for subj in overlay_subjects
-                }
-                
-                available_ov_groups = sorted(set(overlay_subject_groups.values()))
-                selected_ov_groups = st.multiselect(
-                    "Filter overlay by subject group:",
-                    options=available_ov_groups,
-                    default=available_ov_groups,
-                    key="overlay_group_filter"
+                st.markdown(
+                    "Select the subject groups to include in the analysis. "
+                    "If you do not want to include a group, simply **uncheck** it.\n\n"
+                    "**Groups:**\n"
+                    "- NA = Non-aphasic  \n"
+                    "- A = Aphasic  \n"
+                    "- G = Global aphasia  \n"
+                    "- W = Wernicke aphasia  \n"
+                    "- B = Broca aphasia  \n"
+                    "- C = Conduction aphasia  \n"
+                    "- AN = Anomic aphasia  \n"
+                    "- TCM = Transcortical Motor  \n"
+                    "- TCS = Transcortical Sensory  \n"
+                    "- TCMix = Transcortical Mixed"
                 )
-                # Filtrer les sujets en fonction des groupes sélectionnés
-                overlay_subjects = [subj for subj in overlay_subjects if overlay_subject_groups[subj] in selected_ov_groups]
+                # overlay_subject_groups = {
+                #     subj: detect_group(subj) for subj in overlay_subjects
+                # }
+                
+                # available_ov_groups = sorted(set(overlay_subject_groups.values()))
+                # selected_ov_groups = st.multiselect(
+                #     "Filter overlay by subject group:",
+                #     options=available_ov_groups,
+                #     default=available_ov_groups,
+                #     key="overlay_group_filter"
+                # )
+                # # Filtrer les sujets en fonction des groupes sélectionnés
+                # overlay_subjects = [subj for subj in overlay_subjects if overlay_subject_groups[subj] in selected_ov_groups]
 
             if "overlay_ready" not in st.session_state:
                 st.session_state.overlay_ready = False
